@@ -101,13 +101,13 @@ protected:
     // to fill remaining parameters
     image_geometry::StereoCameraModel model;
     model.fromCameraInfo(*l_info_msg, *r_info_msg);
-    visual_odometer_params_.base      = model.baseline();
+    visual_odometer_params_.base      = 0.070; //hard-coded 70mm baseline //model.baseline();
     visual_odometer_params_.calib.cu  = model.left().cx();
     visual_odometer_params_.calib.cv  = model.left().cy();
     visual_odometer_params_.calib.f   = model.left().fx();
 
     visual_odometer_.reset(new VisualOdometryStereo(visual_odometer_params_));
-    if (l_info_msg->header.frame_id != "") setSensorFrameId(l_info_msg->header.frame_id);
+    if (l_info_msg->header.frame_id != "") setSensorFrameId("stereo_forward_optical");
     ROS_INFO_STREAM("Initialized libviso2 stereo odometry "
                     "with the following parameters:" << std::endl <<
                     visual_odometer_params_ <<
@@ -137,10 +137,12 @@ protected:
     uint8_t *l_image_data, *r_image_data;
     int l_step, r_step;
     cv_bridge::CvImageConstPtr l_cv_ptr, r_cv_ptr;
-    l_cv_ptr = cv_bridge::toCvShare(l_image_msg, sensor_msgs::image_encodings::MONO8);
+    l_cv_ptr = cv_bridge::toCvShare(l_image_msg, sensor_msgs::image_encodings::TYPE_8UC1);
+    // l_cv_ptr = cv_bridge::toCvShare(l_image_msg, sensor_msgs::image_encodings::MONO8);
     l_image_data = l_cv_ptr->image.data;
     l_step = l_cv_ptr->image.step[0];
-    r_cv_ptr = cv_bridge::toCvShare(r_image_msg, sensor_msgs::image_encodings::MONO8);
+    r_cv_ptr = cv_bridge::toCvShare(r_image_msg, sensor_msgs::image_encodings::TYPE_8UC1);
+    // l_cv_ptr = cv_bridge::toCvShare(l_image_msg, sensor_msgs::image_encodings::MONO8);
     r_image_data = r_cv_ptr->image.data;
     r_step = r_cv_ptr->image.step[0];
 
